@@ -1,7 +1,7 @@
 Package.describe({
   name: 'trinisofttechnologies:accounts-digits',
   git: 'https://github.com/trinisofttechnologies/accounts-digits.git',
-  version: '1.0.0',
+  version: '1.0.6',
   summary: 'Login with digits using cordova native sdk.'
 });
 

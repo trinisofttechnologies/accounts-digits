@@ -1,11 +1,14 @@
 Accounts.registerLoginHandler("loginWithDigits",function(options) {
+    console.log(options)
     if(!options.loginWithDigits) {
         return undefined;
     }
     var userId = null;
     var user = Meteor.users.findOne({"userId": options.userId});
-    if(!user)
+    if(!user){
+        options._id = options.userId;
         options.userId = userId = Meteor.users.insert(options);
+    }
     else
         options.userId = userId = user.userId;
     var stampedToken = Accounts._generateStampedLoginToken();
