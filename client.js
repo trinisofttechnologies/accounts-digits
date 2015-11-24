@@ -1,13 +1,31 @@
-function mobileCallback(data){
-    console.log("ok");
-    console.log(data)
+Meteor.loginWithDigits = function(phoneNumber, consumerKey, callback){
+    if(window.Digits){
+        onLoadDigits(phoneNumber, consumerKey, callback);
+    }
+    else{
+        $("head")
+            .append('<script id="digits-sdk" src="https://cdn.digits.com/1/sdk.js"></script>');
+        var head = document.getElementsByTagName('head')[0];
+        var script = document.createElement('script');
+        script.type = 'text/javascript';
+        script.src = 'https://cdn.digits.com/1/sdk.js';
+        head.appendChild(script);
+        script.onload = function(){
+            onLoadDigits(phoneNumber, consumerKey, callback);
+        };
+    }
 }
 
-
-Meteor.loginWithDigits = function(loginResponse){
+function onLoadDigits(phoneNumber, consumerKey, callback) {
+    Digits.init({ consumerKey: consumerKey});
+    Digits.logIn({
+        phoneNumber: phoneNumber
+    })
+        .done(function(loginResponse){onLogin(loginResponse, callback);})
+        .fail(function(loginResponse){callback({err: loginResponse})});
+};
+function onLogin(loginResponse, callback){
     console.log('Digits login succeeded.');
-    // var oAuthHeaders = parseOAuthHeaders(loginResponse.oauth_echo_headers);
-    console.log(loginResponse)
     var oAuthHeaders = loginResponse.oauth_echo_headers;
     var verifyData = {
       authHeader: oAuthHeaders['X-Verify-Credentials-Authorization'],
@@ -17,15 +35,13 @@ Meteor.loginWithDigits = function(loginResponse){
     var string = fullstring.split(",")
     var listarray = string[5].split("=")
     var id = listarray[1];
-    console.log(id)
     var obj = {};
     obj.id = id;
     obj.verifyData = verifyData;
-    CreateUser(obj,mobileCallback,false)
+    createUser(obj,callback)
 }
 
-
-function CreateUser(scope, callback, debugFlag ){
+function createUser(scope, callback){
     var obj = {}
     obj.userId = scope.id;
     obj.profile = {};
@@ -42,3 +58,5 @@ var loginWithDigits = function(options,callback){
         userCallback: callback
     });
 }
+
+// Digits.init({ consumerKey: 'G96W4vvFmTE0zXoByFQdPkG0Z' });
